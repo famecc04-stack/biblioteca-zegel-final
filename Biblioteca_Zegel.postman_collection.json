@@ -1,0 +1,481 @@
+{
+  "info": {
+    "_postman_id": "c71a3992-d9f2-4b2a-8954-b58ff8784d50",
+    "name": "Biblioteca Zegel - Evaluación Final",
+    "description": "Colección completa de endpoints para el Sistema de Gestión de Biblioteca Zegel con autenticación JWT y RBAC.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "tokenAdmin",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenUsuario",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Autenticación",
+      "item": [
+        {
+          "name": "1.1 Login - Administrador (Guarda tokenAdmin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.accessToken) {",
+                  "    pm.collectionVariables.set('tokenAdmin', jsonData.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.refreshToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@zegel.edu.pe\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "1.2 Login - Estudiante (Guarda tokenUsuario)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.accessToken) {",
+                  "    pm.collectionVariables.set('tokenUsuario', jsonData.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@zegel.edu.pe\",\n  \"password\": \"user123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "1.3 Registro de Estudiante Nuevo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos Mendoza\",\n  \"email\": \"carlos.mendoza@zegel.edu.pe\",\n  \"password\": \"carlos123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "1.4 Renovar Access Token con Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Catálogo de Libros",
+      "item": [
+        {
+          "name": "2.1 Listar Todos los Libros (Público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/libros",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "libros"]
+            }
+          }
+        },
+        {
+          "name": "2.2 Listar Libros Disponibles (Público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/libros?soloDisponibles=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "libros"],
+              "query": [
+                {
+                  "key": "soloDisponibles",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.3 Buscar Libro por Título o Autor (Público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/libros?buscar=Clean",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "libros"],
+              "query": [
+                {
+                  "key": "buscar",
+                  "value": "Clean"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.4 Obtener Libro por ID (Público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/libros/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "libros", "1"]
+            }
+          }
+        },
+        {
+          "name": "2.5 Crear Libro (Como ADMIN - Éxito 201)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Microservicios con Spring Boot y Docker\",\n  \"autor\": \"John Carnell\",\n  \"isbn\": \"978-1617293986\",\n  \"categoria\": \"Arquitectura de Software\",\n  \"stockTotal\": 8\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/libros",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "libros"]
+            }
+          }
+        },
+        {
+          "name": "2.6 Crear Libro (Como USUARIO - Bloqueo 403 Forbidden)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUsuario}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Intento no autorizado\",\n  \"autor\": \"Usuario Sin Permisos\",\n  \"isbn\": \"999-9999999999\",\n  \"categoria\": \"Seguridad\",\n  \"stockTotal\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/libros",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "libros"]
+            }
+          }
+        },
+        {
+          "name": "2.7 Actualizar Libro (Solo ADMIN)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Clean Code - Segunda Edición\",\n  \"autor\": \"Robert C. Martin\",\n  \"isbn\": \"978-0132350884\",\n  \"categoria\": \"Ingeniería de Software\",\n  \"stockTotal\": 6\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/libros/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "libros", "1"]
+            }
+          }
+        },
+        {
+          "name": "2.8 Eliminar Libro (Solo ADMIN)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/libros/5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "libros", "5"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Préstamos y Devoluciones",
+      "item": [
+        {
+          "name": "3.1 Registrar Préstamo (Solo ADMIN - Descuenta Stock)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuarioId\": 2,\n  \"libroId\": 1,\n  \"diasPrestamo\": 7\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/prestamos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prestamos"]
+            }
+          }
+        },
+        {
+          "name": "3.2 Mis Préstamos (Filtra por Token USUARIO)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUsuario}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/prestamos/mis-prestamos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prestamos", "mis-prestamos"]
+            }
+          }
+        },
+        {
+          "name": "3.3 Listar Todos los Préstamos (Solo ADMIN)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/prestamos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prestamos"]
+            }
+          }
+        },
+        {
+          "name": "3.4 Devolver Préstamo (Solo ADMIN - Repone Stock)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/prestamos/1/devolver",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "prestamos", "1", "devolver"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Usuarios",
+      "item": [
+        {
+          "name": "4.1 Listar Usuarios (Solo ADMIN)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "usuarios"]
+            }
+          }
+        },
+        {
+          "name": "4.2 Obtener Usuario por ID (Solo ADMIN)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios/2",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "usuarios", "2"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
